@@ -39,8 +39,9 @@ class TopicReply(CreateView):
     template_name = 'topic/topic_form.html'
 
     def form_valid(self, form):
-        topic = Topic.objects.get(id=self.kwargs['tid'])
-        form.instance.topic = topic
+        #topic = Topic.objects.get(id=self.kwargs['tid'])
+        #form.instance.topic = topic
+        form.instance.topic_id = self.kwargs['tid']
         form.instance.author = self.request.user
         topic.replied = datetime.now()  # 更新討論主題回覆時間
         topic.save()
