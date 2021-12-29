@@ -27,20 +27,26 @@ class TopicNew(LoginRequiredMixin,CreateView):
 class TopicView(DetailView):
     model = Topic
 
-    def get_context_data(self, **kwargs):
-        # 取得回覆資料傳給頁面範本處理
-        ctx = super().get_context_data(**kwargs)
-        ctx['reply_list'] = Reply.objects.filter(topic=self.object)
-        return ctx
+    #def get_context_data(self, **kwargs):
+    #   # 取得回覆資料傳給頁面範本處理
+    #   ctx = super().get_context_data(**kwargs)
+    #   ctx['reply_list'] = Reply.objects.filter(topic=self.object)
+    #   return ctx
+
+    def get_object(self):
+        topic = super().get_object()    # 取得欲查看的討論主題
+        topic.hits += 1     # 等同 topic.hits = topic.hits + 1
+        topic.save()
+        return topic
 
 # 回覆討論主題
-class TopicReply(CreateView):
+class TopicReply(LoginRequiredMixin,CreateView):
     model = Reply
     fields = ['content']
     template_name = 'topic/topic_form.html'
     def form_valid(self, form):
-        #topic = Topic.objects.get(id=self.kwargs['tid'])
-        #form.instance.topic = topic
+        topic = Topic.objects.get(id=self.kwargs['tid'])
+        form.instance.topic = topic
         form.instance.topic_id = self.kwargs['tid']
         form.instance.author = self.request.user
         topic.replied = datetime.now()  # 更新討論主題回覆時間
